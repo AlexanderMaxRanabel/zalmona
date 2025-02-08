@@ -97,6 +97,7 @@ pub fn main() anyerror!void {
             } else {
                 rl.drawCube(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, rl.Color.gray);
                 rl.drawCubeWires(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, rl.Color.dark_gray);
+                //rl.drawCube(collision);
             }
 
             rl.drawRay(ray, rl.Color.maroon);
