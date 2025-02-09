@@ -1,4 +1,5 @@
 const rl = @import("raylib");
+const std = @import("std");
 
 const MAX_COLUMNS = 20;
 
@@ -53,6 +54,7 @@ pub fn main() anyerror!void {
     var ray: rl.Ray = undefined; // Picking line ray
     var collision: rl.RayCollision = undefined; // Ray collision hit info
     rl.setTargetFPS(60); // Set our game to run at 60 frames-per-second
+    const speed: f32 = 5.0;
     //--------------------------------------------------------------------------------------
 
     // Main game loop
@@ -77,11 +79,21 @@ pub fn main() anyerror!void {
             } else collision.hit = false;
         }
 
+        if (rl.isKeyDown(.up)) {
+            camera.fovy += 1;
+        }
+
+        if (rl.isKeyDown(.down)) {
+            camera.fovy -= 1;
+        }
+
+        var enemy_pos = rl.Vector3.init(enemy.position.x, enemy.position.y, enemy.position.z);
+        enemy_pos.z -= speed * rl.getFrameTime(); // Now it mutates, and the warning disappears
+
         rl.beginDrawing();
         defer rl.endDrawing();
 
         rl.clearBackground(rl.Color.ray_white);
-
         {
             camera.begin();
             defer camera.end();
@@ -97,9 +109,6 @@ pub fn main() anyerror!void {
                 rl.drawCube(positions[i], 2.0, height, 2.0, colors[i]);
                 rl.drawCubeWires(positions[i], 2.0, height, 2.0, rl.Color.maroon);
             }
-            var distance: rl.Vector3 = undefined;
-            distance = rl.Vector3.init(enemy.position.x + 0.1, enemy.position.y + 0.1, enemy.position.z + 0.1);
-            const enemy_pos = rl.Vector3.init(camera.position.x + distance.x, camera.position.y + distance.y, camera.position.z + distance.z);
             rl.drawCube(enemy_pos, 2.0, enemy.height, 2.0, enemy.color);
 
             if (collision.hit) {
