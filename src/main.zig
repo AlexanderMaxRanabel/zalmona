@@ -19,6 +19,15 @@ pub fn main() anyerror!void {
         .projection = .perspective,
     };
 
+    const Enemy_Struct = struct { position: rl.Vector3, color: rl.Color, height: f32, distance: f32 };
+
+    const enemy = Enemy_Struct{
+        .position = rl.Vector3.init(10.0, 5.0, 1.0),
+        .color = rl.Color.init(255, 255, 255, 255),
+        .height = 4.0,
+        .distance = 0.0,
+    };
+
     var heights: [MAX_COLUMNS]f32 = undefined;
     var positions: [MAX_COLUMNS]rl.Vector3 = undefined;
     var colors: [MAX_COLUMNS]rl.Color = undefined;
@@ -26,9 +35,9 @@ pub fn main() anyerror!void {
     for (0..heights.len) |i| { //generates random positions and colors
         heights[i] = @as(f32, @floatFromInt(rl.getRandomValue(1, 12)));
         positions[i] = rl.Vector3.init(
-            @as(f32, @floatFromInt(rl.getRandomValue(-15, 15))),
+            @as(f32, @floatFromInt(rl.getRandomValue(-30, 30))),
             heights[i] / 2.0,
-            @as(f32, @floatFromInt(rl.getRandomValue(-15, 15))),
+            @as(f32, @floatFromInt(rl.getRandomValue(-30, 15))),
         );
         colors[i] = rl.Color.init(
             @as(u8, @intCast(rl.getRandomValue(20, 255))),
@@ -78,16 +87,20 @@ pub fn main() anyerror!void {
             defer camera.end();
 
             // Draw ground
-            rl.drawPlane(rl.Vector3.init(0, 0, 0), rl.Vector2.init(32, 32), rl.Color.light_gray);
-            rl.drawCube(rl.Vector3.init(-16.0, 2.5, 0.0), 1.0, 5.0, 32.0, rl.Color.blue); // Draw a blue wall
-            rl.drawCube(rl.Vector3.init(16.0, 2.5, 0.0), 1.0, 5.0, 32.0, rl.Color.lime); // Draw a green wall
-            rl.drawCube(rl.Vector3.init(0.0, 2.5, 16.0), 32.0, 5.0, 1.0, rl.Color.gold); // Draw a yellow wall
+            rl.drawPlane(rl.Vector3.init(0, 0, 0), rl.Vector2.init(64, 64), rl.Color.light_gray);
+            rl.drawCube(rl.Vector3.init(-32.0, 2.5, 0.0), 1.0, 5.0, 32.0, rl.Color.blue); // Draw a blue wall
+            rl.drawCube(rl.Vector3.init(32.0, 2.5, 0.0), 1.0, 5.0, 32.0, rl.Color.lime); // Draw a green wall
+            rl.drawCube(rl.Vector3.init(0.0, 2.5, 32.0), 32.0, 5.0, 1.0, rl.Color.gold); // Draw a yellow wall
 
             // Draw some cubes around
             for (heights, 0..) |height, i| {
                 rl.drawCube(positions[i], 2.0, height, 2.0, colors[i]);
                 rl.drawCubeWires(positions[i], 2.0, height, 2.0, rl.Color.maroon);
             }
+            var distance: rl.Vector3 = undefined;
+            distance = rl.Vector3.init(enemy.position.x + 0.1, enemy.position.y + 0.1, enemy.position.z + 0.1);
+            const enemy_pos = rl.Vector3.init(camera.position.x + distance.x, camera.position.y + distance.y, camera.position.z + distance.z);
+            rl.drawCube(enemy_pos, 2.0, enemy.height, 2.0, enemy.color);
 
             if (collision.hit) {
                 rl.drawCube(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, rl.Color.red);
