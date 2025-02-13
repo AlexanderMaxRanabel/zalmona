@@ -3,6 +3,11 @@ const std = @import("std");
 
 const MAX_COLUMNS = 20;
 
+pub fn getdirection_vector(first_vector: rl.Vector3, second_vector: rl.Vector3) rl.Vector3 {
+    const third_vector = rl.Vector3.init(first_vector.x - second_vector.x, first_vector.y - second_vector.y, first_vector.z - second_vector.z);
+    return third_vector;
+}
+
 pub fn main() anyerror!void {
     // Initialization
     //--------------------------------------------------------------------------------------
@@ -23,7 +28,7 @@ pub fn main() anyerror!void {
     const Enemy_Struct = struct { position: rl.Vector3, color: rl.Color, height: f32, distance: f32 };
 
     const enemy = Enemy_Struct{
-        .position = rl.Vector3.init(10.0, 5.0, 1.0),
+        .position = rl.Vector3.init(4.0, 2.0, 5.0),
         .color = rl.Color.init(255, 255, 255, 255),
         .height = 4.0,
         .distance = 0.0,
@@ -87,8 +92,8 @@ pub fn main() anyerror!void {
             camera.fovy -= 1;
         }
 
-        var enemy_pos = rl.Vector3.init(enemy.position.x, enemy.position.y, enemy.position.z);
-        enemy_pos.z -= speed * rl.getFrameTime(); // Now it mutates, and the warning disappears
+        var enemy_direction = getdirection_vector(enemy.position, camera.position);
+        enemy_direction.z -= speed * rl.getFrameTime(); // Now it mutates, and the warning disappears
 
         rl.beginDrawing();
         defer rl.endDrawing();
@@ -109,7 +114,7 @@ pub fn main() anyerror!void {
                 rl.drawCube(positions[i], 2.0, height, 2.0, colors[i]);
                 rl.drawCubeWires(positions[i], 2.0, height, 2.0, rl.Color.maroon);
             }
-            rl.drawCube(enemy_pos, 2.0, enemy.height, 2.0, enemy.color);
+            rl.drawCube(enemy_direction, 2.0, enemy.height, 2.0, enemy.color);
 
             if (collision.hit) {
                 rl.drawCube(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, rl.Color.red);
