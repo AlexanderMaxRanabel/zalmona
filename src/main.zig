@@ -53,8 +53,9 @@ pub fn main() anyerror!void {
         );
     }
 
-    var cubePosition: rl.Vector3 = undefined;
-    var p_height: f32 = 0.0;
+    const cubePosition = rl.Vector3.init(0, 1, 0);
+    const cubeSize = rl.Vector3.init(3, 3, 3);
+    //var p_height: f32 = 0.0;
     var ray: rl.Ray = undefined; // Picking line ray
     var collision: rl.RayCollision = undefined; // Ray collision hit info
     rl.setTargetFPS(60); // Set our game to run at 60 frames-per-second
@@ -74,18 +75,10 @@ pub fn main() anyerror!void {
         if (rl.isMouseButtonPressed(.left)) {
             if (!collision.hit) {
                 ray = rl.getScreenToWorldRay(rl.getMousePosition(), camera);
-                for (heights, 0..) |height, i| {
-                    collision = rl.getRayCollisionBox(ray, rl.BoundingBox{
-                        .max = rl.Vector3.init(positions[i].x - 2.0 / 2, positions[i].y - height / 2, positions[i].z - 2.0 / 2),
-                        .min = rl.Vector3.init(positions[i].x + 2.0 / 2, positions[i].y + height / 2, positions[i].z + 2.0 / 2),
-                    });
-
-                    cubePosition.x = positions[i].x;
-                    cubePosition.y = positions[i].y;
-                    cubePosition.z = positions[i].z;
-                    p_height = height;
-                }
-                // Check collision between ray and bo
+                collision = rl.getRayCollisionBox(ray, rl.BoundingBox{
+                    .max = rl.Vector3.init(cubePosition.x - cubeSize.x / 2, cubePosition.y - cubeSize.y / 2, cubePosition.z - cubeSize.z / 2),
+                    .min = rl.Vector3.init(cubePosition.x + cubeSize.x / 2, cubePosition.y + cubeSize.y / 2, cubePosition.z + cubeSize.z / 2),
+                });
             } else collision.hit = false;
         }
 
@@ -123,11 +116,6 @@ pub fn main() anyerror!void {
             //const enemy_position: rl.Vector3.
             rl.drawCube(enemy_direction, 2.0, enemy.height, 2.0, enemy.color);
             if (collision.hit) {
-                for (heights, 0..) |height, i| {
-                    rl.drawCube(positions[i], 2.0, height, 2.0, colors[i]);
-                    rl.drawCubeWires(positions[i], 2.0, height, 2.0, rl.Color.maroon);
-                }
-                //zig rl.drawCubeWires(cubePosition, cubeSize.x + 0.2, cubeSize.y + 0.2, cubeSize.z + 0.2, rl.Color.green);
                 rl.drawCube(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, rl.Color.red);
                 rl.drawCubeWires(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, rl.Color.maroon);
 
