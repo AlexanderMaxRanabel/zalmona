@@ -1,10 +1,10 @@
 const rl = @import("raylib");
 const std = @import("std");
 
-const MAX_COLUMNS = 20;
+const MAX_COLUMNS = 30;
 
 pub fn getdirection_vector(first_vector: rl.Vector3, second_vector: rl.Vector3) rl.Vector3 {
-    const third_vector = rl.Vector3.init(first_vector.x - second_vector.x, first_vector.y - second_vector.y, first_vector.z - second_vector.z);
+    const third_vector: rl.Vector3 = rl.Vector3.subtract(first_vector, second_vector);
     return third_vector;
 }
 
@@ -53,9 +53,8 @@ pub fn main() anyerror!void {
         );
     }
 
-    const cubePosition = rl.Vector3.init(0, 1, 0);
-    const cubeSize = rl.Vector3.init(3, 3, 3);
-
+    var cubePosition: rl.Vector3 = undefined;
+    var p_height: f32 = 0.0;
     var ray: rl.Ray = undefined; // Picking line ray
     var collision: rl.RayCollision = undefined; // Ray collision hit info
     rl.setTargetFPS(60); // Set our game to run at 60 frames-per-second
@@ -75,12 +74,18 @@ pub fn main() anyerror!void {
         if (rl.isMouseButtonPressed(.left)) {
             if (!collision.hit) {
                 ray = rl.getScreenToWorldRay(rl.getMousePosition(), camera);
+                for (heights, 0..) |height, i| {
+                    collision = rl.getRayCollisionBox(ray, rl.BoundingBox{
+                        .max = rl.Vector3.init(positions[i].x - 2.0 / 2, positions[i].y - height / 2, positions[i].z - 2.0 / 2),
+                        .min = rl.Vector3.init(positions[i].x + 2.0 / 2, positions[i].y + height / 2, positions[i].z + 2.0 / 2),
+                    });
 
-                // Check collision between ray and box
-                collision = rl.getRayCollisionBox(ray, rl.BoundingBox{
-                    .max = rl.Vector3.init(cubePosition.x - cubeSize.x / 2, cubePosition.y - cubeSize.y / 2, cubePosition.z - cubeSize.z / 2),
-                    .min = rl.Vector3.init(cubePosition.x + cubeSize.x / 2, cubePosition.y + cubeSize.y / 2, cubePosition.z + cubeSize.z / 2),
-                });
+                    cubePosition.x = positions[i].x;
+                    cubePosition.y = positions[i].y;
+                    cubePosition.z = positions[i].z;
+                    p_height = height;
+                }
+                // Check collision between ray and bo
             } else collision.hit = false;
         }
 
@@ -93,7 +98,7 @@ pub fn main() anyerror!void {
         }
 
         var enemy_direction = getdirection_vector(enemy.position, camera.position);
-        enemy_direction.z -= speed * rl.getFrameTime(); // Now it mutates, and the warning disappears
+        enemy_direction.z += speed * rl.getFrameTime(); // Now it mutates, and the warning disappears
 
         rl.beginDrawing();
         defer rl.endDrawing();
@@ -114,17 +119,19 @@ pub fn main() anyerror!void {
                 rl.drawCube(positions[i], 2.0, height, 2.0, colors[i]);
                 rl.drawCubeWires(positions[i], 2.0, height, 2.0, rl.Color.maroon);
             }
-            rl.drawCube(enemy_direction, 2.0, enemy.height, 2.0, enemy.color);
 
+            //const enemy_position: rl.Vector3.
+            rl.drawCube(enemy_direction, 2.0, enemy.height, 2.0, enemy.color);
             if (collision.hit) {
+                for (heights, 0..) |height, i| {
+                    rl.drawCube(positions[i], 2.0, height, 2.0, colors[i]);
+                    rl.drawCubeWires(positions[i], 2.0, height, 2.0, rl.Color.maroon);
+                }
+                //zig rl.drawCubeWires(cubePosition, cubeSize.x + 0.2, cubeSize.y + 0.2, cubeSize.z + 0.2, rl.Color.green);
                 rl.drawCube(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, rl.Color.red);
                 rl.drawCubeWires(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, rl.Color.maroon);
 
                 rl.drawCubeWires(cubePosition, cubeSize.x + 0.2, cubeSize.y + 0.2, cubeSize.z + 0.2, rl.Color.green);
-            } else {
-                rl.drawCube(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, rl.Color.gray);
-                rl.drawCubeWires(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, rl.Color.dark_gray);
-                //rl.drawCube(collision);
             }
 
             rl.drawRay(ray, rl.Color.maroon);
