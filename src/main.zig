@@ -39,11 +39,12 @@ pub fn main() anyerror!void {
     var colors: [MAX_COLUMNS]rl.Color = undefined;
 
     for (0..heights.len) |i| { //generates random positions and colors
-        heights[i] = @as(f32, @floatFromInt(rl.getRandomValue(1, 12)));
+        heights[i] = @as(f32, @floatFromInt(rl.getRandomValue(1, 24)));
         positions[i] = rl.Vector3.init(
             @as(f32, @floatFromInt(rl.getRandomValue(-30, 30))),
-            heights[i] / 2.0,
-            @as(f32, @floatFromInt(rl.getRandomValue(-30, 15))),
+            //heights[i] / 2.0,
+            @as(f32, @floatFromInt(rl.getRandomValue(0, 15))),
+            @as(f32, @floatFromInt(rl.getRandomValue(-30, 30))),
         );
         colors[i] = rl.Color.init(
             @as(u8, @intCast(rl.getRandomValue(20, 255))),
@@ -60,6 +61,7 @@ pub fn main() anyerror!void {
     var collision: rl.RayCollision = undefined; // Ray collision hit info
     rl.setTargetFPS(60); // Set our game to run at 60 frames-per-second
     const speed: f32 = 5.0;
+    var draw_call = false;
     //--------------------------------------------------------------------------------------
 
     // Main game loop
@@ -90,6 +92,14 @@ pub fn main() anyerror!void {
             camera.fovy -= 1;
         }
 
+        if (rl.isKeyPressed(.g)) {
+            draw_call = true;
+        }
+
+        if (rl.isKeyDown(.space)) {
+            camera.position.y += 0.1;
+        }
+
         var enemy_direction = getdirection_vector(enemy.position, camera.position);
         enemy_direction.z += speed * rl.getFrameTime(); // Now it mutates, and the warning disappears
 
@@ -106,6 +116,7 @@ pub fn main() anyerror!void {
             rl.drawCube(rl.Vector3.init(-32.0, 2.5, 0.0), 1.0, 5.0, 32.0, rl.Color.blue); // Draw a blue wall
             rl.drawCube(rl.Vector3.init(32.0, 2.5, 0.0), 1.0, 5.0, 32.0, rl.Color.lime); // Draw a green wall
             rl.drawCube(rl.Vector3.init(0.0, 2.5, 32.0), 32.0, 5.0, 1.0, rl.Color.gold); // Draw a yellow wall
+            rl.drawSphere(enemy_direction, 3.0, rl.Color.green);
 
             // Draw some cubes around
             for (heights, 0..) |height, i| {
@@ -114,16 +125,19 @@ pub fn main() anyerror!void {
             }
 
             //const enemy_position: rl.Vector3.
+            rl.drawCube(cubePosition, 2.0, 2.0, 2.0, rl.Color.blue);
             rl.drawCube(enemy_direction, 2.0, enemy.height, 2.0, enemy.color);
             if (collision.hit) {
                 rl.drawCube(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, rl.Color.red);
                 rl.drawCubeWires(cubePosition, cubeSize.x, cubeSize.y, cubeSize.z, rl.Color.maroon);
-
-                rl.drawCubeWires(cubePosition, cubeSize.x + 0.2, cubeSize.y + 0.2, cubeSize.z + 0.2, rl.Color.green);
             }
 
             rl.drawRay(ray, rl.Color.maroon);
             rl.drawGrid(10, 1);
+            if (draw_call == true) {
+                rl.drawCube(rl.Vector3.init(-32.0, 2.5, 0.0), 1.0, 5.0, 32.0, rl.Color.blue);
+                draw_call = false;
+            }
         }
 
         rl.drawRectangle(10, 10, 220, 70, rl.Color.sky_blue.fade(0.5));
