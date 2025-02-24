@@ -100,6 +100,10 @@ pub fn main() anyerror!void {
             camera.position.y += 0.1;
         }
 
+        if (rl.isKeyDown(.left_shift)) {
+            camera.position.y -= 0.1;
+        }
+
         var enemy_direction = getdirection_vector(enemy.position, camera.position);
         enemy_direction.z += speed * rl.getFrameTime(); // Now it mutates, and the warning disappears
 
@@ -135,8 +139,7 @@ pub fn main() anyerror!void {
             rl.drawRay(ray, rl.Color.maroon);
             rl.drawGrid(10, 1);
             if (draw_call == true) {
-                rl.drawCube(rl.Vector3.init(-32.0, 2.5, 0.0), 1.0, 5.0, 32.0, rl.Color.blue);
-                draw_call = false;
+                rl.drawCube(rl.Vector3.init(0.0, 5.0, 0.5), 1.0, 5.0, 32.0, rl.Color.blue);
             }
         }
 
