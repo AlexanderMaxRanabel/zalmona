@@ -77,9 +77,14 @@ pub fn main() anyerror!void {
         if (rl.isMouseButtonPressed(.left)) {
             if (!collision.hit) {
                 ray = rl.getScreenToWorldRay(rl.getMousePosition(), camera);
+                //collision = rl.getRayCollisionBox(ray, rl.BoundingBox{
+                //  .max = rl.Vector3.init(cubePosition.x - cubeSize.x / 2, cubePosition.y - cubeSize.y / 2, cubePosition.z - cubeSize.z / 2),
+                //.min = rl.Vector3.init(cubePosition.x + cubeSize.x / 2, cubePosition.y + cubeSize.y / 2, cubePosition.z + cubeSize.z / 2),
+                // });
+
                 collision = rl.getRayCollisionBox(ray, rl.BoundingBox{
-                    .max = rl.Vector3.init(cubePosition.x - cubeSize.x / 2, cubePosition.y - cubeSize.y / 2, cubePosition.z - cubeSize.z / 2),
-                    .min = rl.Vector3.init(cubePosition.x + cubeSize.x / 2, cubePosition.y + cubeSize.y / 2, cubePosition.z + cubeSize.z / 2),
+                    .max = rl.Vector3.init(0 - 64 / 2, 2 - 1 / 2, 0 - 1 / 2),
+                    .min = rl.Vector3.init(0 + 64 / 2, 2 + 1 / 2, 0 + 1 / 2),
                 });
             } else collision.hit = false;
         }
@@ -99,7 +104,6 @@ pub fn main() anyerror!void {
         if (rl.isKeyDown(.space)) {
             camera.position.y += 0.1;
         }
-
         if (rl.isKeyDown(.left_shift)) {
             camera.position.y -= 0.1;
         }
@@ -116,7 +120,7 @@ pub fn main() anyerror!void {
             defer camera.end();
 
             // Draw ground
-            rl.drawPlane(rl.Vector3.init(0, 0, 0), rl.Vector2.init(64, 64), rl.Color.light_gray);
+            rl.drawCube(rl.Vector3.init(1, 2, 1), 64, 1, 64, rl.Color.light_gray);
             rl.drawCube(rl.Vector3.init(-32.0, 2.5, 0.0), 1.0, 5.0, 32.0, rl.Color.blue); // Draw a blue wall
             rl.drawCube(rl.Vector3.init(32.0, 2.5, 0.0), 1.0, 5.0, 32.0, rl.Color.lime); // Draw a green wall
             rl.drawCube(rl.Vector3.init(0.0, 2.5, 32.0), 32.0, 5.0, 1.0, rl.Color.gold); // Draw a yellow wall
@@ -139,7 +143,8 @@ pub fn main() anyerror!void {
             rl.drawRay(ray, rl.Color.maroon);
             rl.drawGrid(10, 1);
             if (draw_call == true) {
-                rl.drawCube(rl.Vector3.init(0.0, 5.0, 0.5), 1.0, 5.0, 32.0, rl.Color.blue);
+                rl.drawCube(camera.position, 1.0, 1.0, 1.0, rl.Color.blue);
+                //draw_call = false;
             }
         }
 
